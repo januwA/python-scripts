@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+
+
+def main():
+    registry_taobao = "https://registry.npm.taobao.org/"
+    registry_npm = "https://registry.npmjs.org/"
+
+    parser = argparse.ArgumentParser(
+        prog='anpm',
+        description='快速启动一些npm脚本',
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    parser.add_argument('-p', '--publish',
+                        # 为设置时为None
+                        # 设置时'-p ' 为true，不能跟参数
+                        action='store_true', default=None,
+                        help='发布npm包，将自动切换到npm源，发布成功后在自动切回taobao源')
+
+    parser.add_argument('-t', '--taobao', action='store_true',
+                        default=None, help='设置淘宝源')
+
+    parser.add_argument('-n', '--npm', action='store_true',
+                        default=None, help='设置默认源')
+
+    parser.add_argument('-u', '--update', action='store_true',
+                        default=None, help='升级package.json的依赖包')
+
+    parser.add_argument('-r', '--registry',
+                        action='store_true', default=None, help='查看当前源')
+
+    parser.add_argument('-g', '--global', action='store_true',
+                        default=None, help='global -g')
+
+    parser.add_argument('-l', '--list', action='store_true',
+                        default=None, help='npm list --depth=0')
+
+    args = parser.parse_args()
+
+    def show_registry():
+        os.system('npm config get registry')
+
+    # 发布后立即切换回taobao源
+    if args.publish	:
+        os.system(f'npm config set registry {registry_npm}')
+        os.system(f'npm publish')
+        os.system(f'npm config set registry {registry_taobao}')
+
+    if args.npm:
+        os.system(f'npm config set registry {registry_npm}')
+        show_registry()
+
+    if args.taobao:
+        os.system(f'npm config set registry {registry_taobao}')
+        show_registry()
+
+    if args.update:
+        os.system('npx npm-check-updates -g' if getattr(args, 'global')
+                  else 'npx npm-check-updates -u && npm i')
+
+    if args.list:
+        os.system('npm -g list --depth=0' if getattr(args,
+                  'global') else 'npm list --depth=0')
+
+    if args.registry:
+        show_registry()
+
+
+if __name__ == '__main__':
+    main()

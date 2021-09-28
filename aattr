@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+
+import os
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog='aattr',
+    description='windows 显示/隐藏文件',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+
+
+parser.add_argument('--show',
+                    # 提供值时 '--show ./asd'
+                    type=str,
+
+                    # 为提供值时 '--show '
+                    nargs='?', const='',
+
+                    # 命令中不存在此选项时 ' '
+                    default=None,
+                    help='显示文件，如果没有提供文件，则显示当前目录下所有文件')
+
+parser.add_argument('--hide',
+                    type=str,
+                    nargs='?', const='',
+                    default=None,
+                    help='隐藏文件，如果没有提供文件，则隐藏当前目录下所有文件')
+
+args = parser.parse_args()
+
+show = args.show
+hide = args.hide
+
+
+if show is None and hide is None:
+    parser.print_help()
+    exit()
+
+
+if show is not None:
+    if show != '':
+        os.system(f"attrib.exe +h +s +r {show}")
+    else:
+        os.system('attrib.exe +h +s +r //S //D')
+    exit()
+
+if hide is not None:
+    if hide != '':
+        os.system(f"attrib.exe -h -s -r {hide}")
+    else:
+        os.system('attrib.exe -h -s -r //S //D')
+        os.system('aattr -hi desktop.ini')
+    exit()

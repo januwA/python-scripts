@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+
+import sys
+import re
+import os
+import shutil
+
+if len(sys.argv) == 1:
+    print('必须设置保存目录!')
+    exit()
+
+# 保存的文件目录
+saveDir = sys.argv[1]
+
+# 避免windows上的空格文件
+saveDir = re.sub(r' ', '\\ ', saveDir)
+
+try:
+    os.system(
+        f"git clone https://github.com/januwA/webpack-scaffold.git {saveDir}")
+    shutil.rmtree(os.path.join('./', saveDir, '.git'))
+
+    print('''
+See also:
+
+# https://webpack.js.org/
+# https://www.webpackjs.com/
+# https://github.com/januwA/webpack-scaffold.git
+''')
+except Exception as e:
+    print(e)

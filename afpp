@@ -1,0 +1,59 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+
+parser = argparse.ArgumentParser(
+    prog='afpp',
+    description='Flutetr 快速脚本',
+    formatter_class=argparse.RawTextHelpFormatter
+)
+
+parser.add_argument('-pub', '--publish', action='store_true',
+                    default=None, help='发布包命令')
+parser.add_argument('-r', '--reset', action='store_true',
+                    default=None, help='设置china的安装包环境')
+parser.add_argument('--check', action='store_true',
+                    default=None, help='检查包是否有错误')
+parser.add_argument('--port', type=int, default=None, help='发布时设置本地代理代理端口号')
+parser.add_argument('-code', '--codegen', action='store_true',
+                    default=None, help='生成*.g.dart文件')
+parser.add_argument('--build', action='store_true',
+                    default=None, help='分包打包APK')
+
+args = parser.parse_args()
+
+if args.check:
+    os.system('flutter packages pub lish --dry-run')
+
+if args.build:
+    os.system('flutter build apk --split-per-abi')
+
+
+def resetENV():
+    del os.environ['http_proxy']
+    del os.environ['https_proxy']
+    os.environ['PUB_HOSTED_URL'] = "https://pub.flutter-io.cn"
+    os.environ['FLUTTER_STORAGE_BASE_URL'] = "https://storage.flutter-io.cn"
+
+
+def publishENV():
+    del os.environ['PUB_HOSTED_URL']
+    del os.environ['FLUTTER_STORAGE_BASE_URL']
+    os.environ['http_proxy'] = "http://127.0.0.1:$proxyPort"
+    os.environ['https_proxy'] = "https://127.0.0.1:$proxyPort"
+
+
+# 发布：设置环境变量，并执行发布命令
+if args.publish:
+    publishENV()
+    os.system('flutter packages pub lish')
+    resetENV()
+
+# 发布成功，重置环境变量
+if args.reset:
+    resetENV()
+
+if args.codegen:
+    os.system(
+        'flutter packages pub run build_runner watch --delete-conflicting-outputs')

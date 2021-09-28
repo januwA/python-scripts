@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+
+parser = argparse.ArgumentParser(
+    prog='agit',
+    description='快速git脚本',
+    formatter_class=argparse.RawTextHelpFormatter
+)
+
+
+parser.add_argument('-a', '--amend', type=str, nargs='?',
+                    const='', default=None, help='修改最新的提交')
+
+parser.add_argument('--togit', type=str,
+                    metavar='<git address>', help='把本地htps仓库转化为git仓库')
+parser.add_argument('-p', '--push', type=str, help='提交到远程仓库')
+parser.add_argument('-r', '--restore', type=str, nargs='?',
+                    const='', default=None, help='恢复工作树的修改')
+parser.add_argument('-d', '--del', type=str, nargs='?',
+                    const='dev', default=None, help='删除本地分支')
+parser.add_argument('-n', '--new', type=str, nargs='?',
+                    const='dev', default=None, help='创建本地分支')
+parser.add_argument('-i', type=str, nargs='?',
+                    const='dev', default=None, help='切换分支')
+parser.add_argument('-m', '--merge', type=str, nargs='?',
+                    const='dev', default=None, help='合并本地分支')
+parser.add_argument('-c', '--commit', action='store_true',
+                    default=None, help='保存所有本地所有变更，然后commit')
+
+parser.add_argument('--config', action='store_true',
+                    default=None, help='安装Git后，初始化全局配置')
+
+args = parser.parse_args()
+
+
+if args.amend is not None:
+    if args.amend:
+        os.system(
+            f"git add . && git commit --amend -m \"{args.amend}\" && git push -f")
+    else:
+        os.system('git add . && git commit --amend --no-edit && git push -f')
+
+
+if args.togit:
+    os.system(f"git remote set-url origin {args.togit}")
+
+if args.push:
+    os.system(f"git add . && git commit -m \"{args.push}\" && git push")
+
+if args.restore is not None:
+    if args.restore:
+        os.system(f"git restore {args.restore}")
+    else:
+        os.system('git restore .')
+
+if args.new:
+    os.system(f"git checkout -b {args.new}")
+
+if getattr(args, 'del'):
+    os.system(f"git branch -d {getattr(args, 'del')}")
+
+if args.i:
+    os.system(f"git checkout {args.i}")
+
+if args.merge:
+    os.system(f"git merge {args.merge}")
+
+if args.commit:
+    os.system(f"git add . && git commit")
+
+if args.config:
+    os.system(f'git config --global user.name "januwA"')
+    os.system(f'git config --global user.email ajanuw1995@gmail.com')
+    os.system(f'git config --global core.autocrlf input')
+    os.system(f'git config --global pull.rebase true')
+    os.system(f'git config --global core.editor vim')

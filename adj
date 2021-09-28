@@ -1,0 +1,50 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+
+parser = argparse.ArgumentParser(
+    prog='adj',
+    description='django 快速脚本',
+    formatter_class=argparse.RawTextHelpFormatter
+)
+
+parser.add_argument('-s', '--start', action='store_true',
+                    default=None, help='启动本地开发服务器')
+parser.add_argument('-m1', action='store_true', default=None, help='生成迁移文件')
+parser.add_argument('-m2', action='store_true', default=None, help='执行迁移')
+parser.add_argument('-admin', action='store_true',
+                    default=None, help='创建一个管理员')
+parser.add_argument('-shell', action='store_true',
+                    default=None, help='开启django shell')
+parser.add_argument('-n', '--new', type=str, help='创建一个新模块')
+parser.add_argument('-init', type=str, help='初始化 django 项目')
+
+args = parser.parse_args()
+
+if args.init:
+    pro_dir = f"{args.init}_project"
+    os.mkdir(pro_dir)
+    os.chdir(pro_dir)
+    os.system("pipenv install django djangorestframework")
+    os.system("pipenv shell")
+    os.system("django-admin startproject $ARGV[0] .")
+    print("创建完成")
+
+if args.start:
+    os.system("python manage.py runserver")
+
+if args.m1:
+    os.system("python manage.py makemigrations")
+
+if args.m2:
+    os.system("python manage.py migrate")
+
+if args.new:
+    os.system("python manage.py startapp {args.new}")
+
+if args.admin:
+    os.system("python manage.py createsuperuser")
+
+if args.shell:
+    os.system("python manage.py shell")

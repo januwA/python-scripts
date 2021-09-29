@@ -10,23 +10,23 @@ parser = argparse.ArgumentParser(
 )
 
 
-parser.add_argument('-a', '--amend', type=str, nargs='?',
+parser.add_argument('-amend', type=str, nargs='?',
                     const='', default=None, help='修改最新的提交')
 
-parser.add_argument('--togit', type=str,
+parser.add_argument('-togit', type=str,
                     metavar='<git address>', help='把本地htps仓库转化为git仓库')
-parser.add_argument('-p', '--push', type=str, help='提交到远程仓库')
-parser.add_argument('-r', '--restore', type=str, nargs='?',
+parser.add_argument('-p', dest='push', type=str, help='提交到远程仓库')
+parser.add_argument('-r', dest='restore', type=str, nargs='?',
                     const='', default=None, help='恢复工作树的修改')
-parser.add_argument('-d', '--del', type=str, nargs='?',
+parser.add_argument('-d', dest='del', type=str, nargs='?',
                     const='dev', default=None, help='删除本地分支')
-parser.add_argument('-n', '--new', type=str, nargs='?',
+parser.add_argument('-n', dest='new', type=str, nargs='?',
                     const='dev', default=None, help='创建本地分支')
-parser.add_argument('-i', type=str, nargs='?',
+parser.add_argument('-i', dest='in', type=str, nargs='?',
                     const='dev', default=None, help='切换分支')
-parser.add_argument('-m', '--merge', type=str, nargs='?',
+parser.add_argument('-m', dest='merge', type=str, nargs='?',
                     const='dev', default=None, help='合并本地分支')
-parser.add_argument('-c', '--commit', action='store_true',
+parser.add_argument('-c', dest='commit', action='store_true',
                     default=None, help='保存所有本地所有变更，然后commit')
 
 parser.add_argument('--config', action='store_true',
@@ -61,8 +61,8 @@ if args.new:
 if getattr(args, 'del'):
     os.system(f"git branch -d {getattr(args, 'del')}")
 
-if args.i:
-    os.system(f"git checkout {args.i}")
+if getattr(args, 'in'):
+    os.system(f"git checkout {getattr(args, 'in')}")
 
 if args.merge:
     os.system(f"git merge {args.merge}")

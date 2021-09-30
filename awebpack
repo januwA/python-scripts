@@ -4,6 +4,7 @@ import sys
 import re
 import os
 import shutil
+import stat
 from sys import exit
 
 if len(sys.argv) == 1:
@@ -16,17 +17,25 @@ saveDir = sys.argv[1]
 # 避免windows上的空格文件
 saveDir = re.sub(r' ', '\\ ', saveDir)
 
-try:
-    os.system(
-        f"git clone https://github.com/januwA/webpack-scaffold.git {saveDir}")
-    shutil.rmtree(os.path.join('./', saveDir, '.git'))
+def readonly_handler(func, path, execinfo):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
-    print('''
+success = os.system(
+    f"git clone https://github.com/januwA/webpack-scaffold.git {saveDir}")
+
+if success != 0:
+    exit()
+
+git_path = os.path.join('./', saveDir, '.git')
+
+if os.path.exists(git_path):
+    shutil.rmtree(git_path, onerror=readonly_handler)
+
+print('''
 See also:
 
 # https://webpack.js.org/
 # https://www.webpackjs.com/
 # https://github.com/januwA/webpack-scaffold.git
 ''')
-except Exception as e:
-    print(e)

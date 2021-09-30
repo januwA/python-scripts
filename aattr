@@ -2,6 +2,7 @@
 
 import os
 import argparse
+from sys import exit
 
 parser = argparse.ArgumentParser(
     prog='aattr',
@@ -29,26 +30,18 @@ parser.add_argument('--hide',
 
 args = parser.parse_args()
 
-show = args.show
-hide = args.hide
 
-
-if show is None and hide is None:
-    parser.print_help()
+if args.hide is not None:
+    if args.hide:
+        os.system(f"attrib.exe +h +s +r {args.hide}")
+    else:
+        os.system('attrib.exe +h +s +r /S /D')
     exit()
 
-
-if show is not None:
-    if show != '':
-        os.system(f"attrib.exe +h +s +r {show}")
+if args.show is not None:
+    if args.show:
+        os.system(f"attrib.exe -h -s -r {args.show}")
     else:
-        os.system('attrib.exe +h +s +r //S //D')
-    exit()
-
-if hide is not None:
-    if hide != '':
-        os.system(f"attrib.exe -h -s -r {hide}")
-    else:
-        os.system('attrib.exe -h -s -r //S //D')
-        os.system('aattr -hi desktop.ini')
+        os.system('attrib.exe -h -s -r /S /D')
+        os.system('attrib.exe +h +s +r ./desktop.ini')
     exit()

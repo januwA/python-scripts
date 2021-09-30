@@ -4,6 +4,7 @@ import sys
 import re
 import os
 import shutil
+from sys import exit
 
 if len(sys.argv) == 1:
     print('必须设置保存目录!')

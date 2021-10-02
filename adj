@@ -26,6 +26,7 @@ if args.init:
     pro_dir = f"{args.init}_project"
     os.mkdir(pro_dir)
     os.chdir(pro_dir)
+    os.mkdir('./.venv')
     os.system("pipenv install django djangorestframework")
     os.system("pipenv shell")
     os.system(f"django-admin startproject {args.init} .")

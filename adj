@@ -28,7 +28,7 @@ if args.init:
     os.chdir(pro_dir)
     os.system("pipenv install django djangorestframework")
     os.system("pipenv shell")
-    os.system("django-admin startproject $ARGV[0] .")
+    os.system(f"django-admin startproject {args.init} .")
     print("创建完成")
 
 if args.start:

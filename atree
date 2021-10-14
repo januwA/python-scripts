@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+
+import sys
+from pathlib import Path
+import argparse
+
+if __name__ != '__main__':
+  sys.exit(1)
+
+# 默认无视的目录
+K_IGNORE = ['.git', 'node_modules']
+
+parser = argparse.ArgumentParser(
+    prog='atree',
+    description='打印目录树',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+
+parser.add_argument('dir', type=str, nargs='?', default='.', help='需要遍历的根目录')
+parser.add_argument('-i', nargs='+', default=K_IGNORE, help='需要忽略的目录')
+parser.add_argument('-c', type=int, default=0, help='目录查询层数')
+
+args = parser.parse_args()
+
+# 忽略目录
+args.i = list(set(args.i + K_IGNORE)) 
+
+# 递归目录计数
+dir_deep_count = 0
+
+# 递归打印
+def scan(p: Path, space = ''):
+  p = Path(str(p))
+  for x in p.iterdir():
+    print(f'| {space}{x.name}')
+    if x.is_dir() and x.name not in args.i:
+      global dir_deep_count
+      dir_deep_count = dir_deep_count + 1
+      if args.c > 0 and dir_deep_count >= args.c:
+        return
+      scan(x, space + '|-- ')
+
+
+scan( Path(getattr(args, 'dir')) )

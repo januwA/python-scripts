@@ -40,7 +40,7 @@ if args.m2:
     os.system("python manage.py migrate")
 
 if args.new:
-    os.system("python manage.py startapp {args.new}")
+    os.system(f"python manage.py startapp {args.new}")
 
 if args.admin:
     os.system("python manage.py createsuperuser")

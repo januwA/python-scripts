@@ -19,6 +19,7 @@ parser.add_argument('-shell', action='store_true',
                     default=None, help='开启django shell')
 parser.add_argument('-n', '--new', type=str, help='创建一个新模块')
 parser.add_argument('-init', type=str, help='初始化 django 项目')
+parser.add_argument('-app', action='store_true', default=None, help='创建主模块')
 
 args = parser.parse_args()
 
@@ -29,6 +30,9 @@ if args.init:
     os.mkdir('./.venv')
     os.system("pipenv install django djangorestframework")
     os.system(f"./.venv/bin/django-admin startproject {args.init} .")
+
+if args.app:
+    os.system("django-admin startproject app .")
 
 if args.start:
     os.system("python manage.py runserver")

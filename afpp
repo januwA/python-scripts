@@ -15,7 +15,7 @@ parser.add_argument('-r', '--reset', action='store_true',
                     default=None, help='设置china的安装包环境')
 parser.add_argument('--check', action='store_true',
                     default=None, help='检查包是否有错误')
-parser.add_argument('--port', type=int, default=None, help='发布时设置本地代理代理端口号')
+parser.add_argument('--port', type=int, default=19996, help='发布时设置本地代理代理端口号')
 parser.add_argument('-code', '--codegen', action='store_true',
                     default=None, help='生成*.g.dart文件')
 parser.add_argument('--build', action='store_true',
@@ -40,8 +40,8 @@ def resetENV():
 def publishENV():
     del os.environ['PUB_HOSTED_URL']
     del os.environ['FLUTTER_STORAGE_BASE_URL']
-    os.environ['http_proxy'] = "http://127.0.0.1:$proxyPort"
-    os.environ['https_proxy'] = "https://127.0.0.1:$proxyPort"
+    os.environ['http_proxy'] = f"http://127.0.0.1:{args.port}"
+    os.environ['https_proxy'] = f"https://127.0.0.1:{args.port}"
 
 
 # 发布：设置环境变量，并执行发布命令

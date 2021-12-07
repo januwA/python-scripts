@@ -2,37 +2,30 @@
 
 import argparse
 import os
+import sys
 
 parser = argparse.ArgumentParser(
-    prog='adj',
-    description='django 快速脚本',
-    formatter_class=argparse.RawTextHelpFormatter
+    prog="adj", description="django 快速脚本", formatter_class=argparse.RawTextHelpFormatter
 )
 
-parser.add_argument('-s', '--start', action='store_true',
-                    default=None, help='启动本地开发服务器')
-parser.add_argument('-m1', action='store_true', default=None, help='生成迁移文件')
-parser.add_argument('-m2', action='store_true', default=None, help='执行迁移')
-parser.add_argument('-m3', action='store_true',
-                    default=None, help='创建超级管理员')
-parser.add_argument('-shell', action='store_true',
-                    default=None, help='开启django shell')
-parser.add_argument('-n', '--new', type=str, help='创建一个新模块')
-parser.add_argument('-init', type=str, help='初始化 django 项目')
-parser.add_argument('-app', action='store_true', default=None, help='创建主模块')
+parser.add_argument(
+    "-s", "--start", action="store_true", default=None, help="启动本地开发服务器"
+)
+parser.add_argument("-m1", action="store_true", default=None, help="生成迁移文件")
+parser.add_argument("-m2", action="store_true", default=None, help="执行迁移")
+parser.add_argument("-m3", action="store_true", default=None, help="创建超级管理员")
+parser.add_argument("-shell", action="store_true", default=None, help="开启django shell")
+parser.add_argument("-n", "--new", type=str, help="创建一个新模块")
+parser.add_argument("-app", action="store_true", default=None, help="创建项目")
+parser.add_argument("-ic", action="store_true", default=None, help="更换pip源")
 
 args = parser.parse_args()
 
-if args.init:
-    pro_dir = f"{args.init}_project"
-    os.mkdir(pro_dir)
-    os.chdir(pro_dir)
-    os.mkdir('./.venv')
-    os.system("pipenv install django djangorestframework")
-    os.system(f"./.venv/bin/django-admin startproject {args.init} .")
-
 if args.app:
     os.system("django-admin startproject app .")
+
+if args.new:
+    os.system(f"python manage.py startapp {args.new}")
 
 if args.start:
     os.system("python manage.py runserver")
@@ -46,8 +39,35 @@ if args.m2:
 if args.m3:
     os.system("python manage.py createsuperuser")
 
-if args.new:
-    os.system(f"python manage.py startapp {args.new}")
-
 if args.shell:
     os.system("python manage.py shell")
+
+if args.ic:
+    """
+    See https://www.runoob.com/w3cnote/pip-cn-mirror.html
+    """
+
+    conf_path = os.path.join(
+        os.environ.get("HOME"), "pip" if sys.platform == "win32" else ".pip", "pip.conf"
+    )
+
+    def write_conf():
+        """直接写入配置"""
+        print("Config Path: ", conf_path)
+        with open(conf_path, "w+", encoding="utf-8") as fp:
+            data = """[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+[install]
+trusted-host = https://pypi.tuna.tsinghua.edu.cn
+"""
+            fp.write(data)
+
+    if os.path.exists(conf_path):
+        reply = str(input("配置文件已存在，确认覆盖吗 (y/n)  ")).lower()
+
+        if len(reply) and reply[0] == "y":
+            write_conf()
+
+    else:
+        os.makedirs(os.path.dirname(conf_path), exist_ok=True)
+        write_conf()

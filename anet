@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import sys
+from urllib import request,parse
+import datetime
+import mimetypes
+import base64
+
+helo_description = '''
+发起网络请求，结果
+
+GET:    anet http://127.0.0.1:8000/test/ 
+
+POST:   anet http://127.0.0.1:8000/test/ -d 'name=ajanuw&age=10'
+
+POST:   anet http://127.0.0.1:8000/test/ -d '{"name":"ajanuw"}' -he '{"content-type":"application/json"}'
+
+DELETE: anet http://127.0.0.1:8000/test/ -m delete
+'''
+parser = argparse.ArgumentParser(
+    prog="anet", description=helo_description, formatter_class=argparse.RawTextHelpFormatter
+)
+
+parser.add_argument('url', help='网络地址', type=str)
+
+parser.add_argument( "-p", dest='proxy', action="store_true", default=None, help="使用代理")
+parser.add_argument( "-d", dest='data', type=str, default=None, help="发送数据")
+parser.add_argument( "-m", dest='method', type=str, default=None, help="请求方法")
+parser.add_argument( "-he", dest='header', type=str, default=None, help="添加请求头")
+
+args = parser.parse_args()
+
+
+def multipart_encode(data:dict):
+    print(data)
+    rs = datetime.datetime.now().timestamp()
+    ctype = f'''multipart/form-data; boundary=----WebKitFormBoundary{rs}'''
+    segments = ['\n']
+    
+    for k,v in data.items():
+        if v[0][0] == '@':
+            for fpath in v:
+                fpath = fpath[1:]
+                guess_type = mimetypes.guess_type(fpath)
+                f = open(fpath, 'rb')
+                segments.append(f'''------WebKitFormBoundary{rs}\nContent-Disposition: form-data; name="{k}"; filename="{f.name}"\nContent-Type: "{guess_type[0]}"\n\n''')
+
+                # byte to base64
+                encoded = base64.b64encode(f.read()).decode('utf-8')
+                segments.append(f'{encoded}\r\n')
+                f.close()
+        else:
+            for vi in v:
+                segments.append(f'''------WebKitFormBoundary{rs}\nContent-Disposition: form-data; name="{k}"\n\n{vi}\n''')
+
+    segments.append(f'------WebKitFormBoundary{rs}--')
+    data = ''.join(segments)
+    byte_len = len(data)
+    print(data)
+    print(byte_len)
+    
+def send(proxy:bool,retry = True):
+    proxy_host = 'localhost:19996'
+    req = request.Request(args.url)
+
+    if args.header:
+        headers = json.loads(args.header)
+        for k,v in headers.items():
+            print(k,v)
+            req.add_header(k, v)
+
+    if args.method:
+        req.method = args.method
+    
+    if args.data:
+        
+        is_form_data = False
+        # for k,v in parse.parse_qs(args.data).items():
+        #     if v[0][0] == '@':
+        #         is_form_data = True
+
+        #         for fpath in v:
+        #             datagen, headers = multipart_encode({"file": f})
+        #             print(fpath)
+        multipart_encode(parse.parse_qs(args.data))
+        sys.exit()
+        if not is_form_data:
+            o = open('./a.txt')
+            x = parse.urlencode({'file': o.read()})
+            data = x.encode('utf-8')
+            # data = args.data.encode('utf-8')
+            req.data = data
+            o.close()
+        else:
+            pass
+
+    if proxy:
+        req.set_proxy(proxy_host, 'http')
+        req.set_proxy(proxy_host, 'https')
+
+    try:
+        with request.urlopen(req) as f:
+            print(f.read().decode('utf-8'))
+    except Exception as e:
+
+        # 如果连接被拒绝，尝试使用代理发送
+        if 'Connection refused' in str(e) and retry:
+            send(proxy=True, retry=False)
+        else:
+            print(e)
+        
+send(proxy=not not args.proxy)
+

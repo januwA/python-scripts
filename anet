@@ -2,114 +2,143 @@
 
 import argparse
 import json
-import sys
-from urllib import request,parse
+from urllib import request, parse
 import datetime
 import mimetypes
-import base64
 
-helo_description = '''
-发起网络请求，结果
+helo_description = """
+获取数据
+anet http://127.0.0.1:8000/test/ 
 
-GET:    anet http://127.0.0.1:8000/test/ 
+发送数据
+anet http://127.0.0.1:8000/test/ -d 'name=ajanuw&age=10'
 
-POST:   anet http://127.0.0.1:8000/test/ -d 'name=ajanuw&age=10'
+添加 header
+anet http://127.0.0.1:8000/test/ -d '{"name":"ajanuw"}' -H '{"content-type":"application/json"}'
 
-POST:   anet http://127.0.0.1:8000/test/ -d '{"name":"ajanuw"}' -he '{"content-type":"application/json"}'
+发送文件
+anet http://127.0.0.1:8000/test/ -f "name=ajanuw&file=@x.jpg&file=@b.jpg"
 
-DELETE: anet http://127.0.0.1:8000/test/ -m delete
-'''
+设置method
+anet http://127.0.0.1:8000/test/ -m delete
+"""
+
+# 本地代理端口
+proxy_host = "localhost:19996"
+
 parser = argparse.ArgumentParser(
-    prog="anet", description=helo_description, formatter_class=argparse.RawTextHelpFormatter
+    prog="anet",
+    description=helo_description,
+    formatter_class=argparse.RawTextHelpFormatter,
 )
 
-parser.add_argument('url', help='网络地址', type=str)
+parser.add_argument("url", help="网络地址", type=str)
 
-parser.add_argument( "-p", dest='proxy', action="store_true", default=None, help="使用代理")
-parser.add_argument( "-d", dest='data', type=str, default=None, help="发送数据")
-parser.add_argument( "-m", dest='method', type=str, default=None, help="请求方法")
-parser.add_argument( "-he", dest='header', type=str, default=None, help="添加请求头")
+parser.add_argument("-o", dest="output", type=str, default=None, help="将返回的结果输出到文件")
+parser.add_argument("-p", dest="proxy", action="store_true", default=None, help="使用代理")
+parser.add_argument("-d", dest="data", type=str, default=None, help="发送数据")
+parser.add_argument("-f", dest="file", type=str, default=None, help="发送form-data")
+parser.add_argument("-m", dest="method", type=str, default=None, help="请求方法")
+parser.add_argument("-H", dest="header", type=str, default=None, help="添加请求头")
+parser.add_argument(
+    "-Hjson", action="store_true", default=None, help="content-type设置为json"
+)
 
 args = parser.parse_args()
 
 
-def multipart_encode(data:dict):
-    print(data)
-    rs = datetime.datetime.now().timestamp()
-    ctype = f'''multipart/form-data; boundary=----WebKitFormBoundary{rs}'''
-    segments = ['\n']
-    
-    for k,v in data.items():
-        if v[0][0] == '@':
+def binary_string(input: bytes) -> str:
+    """发送文件使用"""
+    rawdata = ""
+    for i in input:
+        rawdata += chr(i)
+    return rawdata
+
+
+def str_bytes(input: str) -> bytes:
+    """发送文件使用"""
+    rb = bytearray()
+    for i in input:
+        rb.append(ord(i) & 0xFF)
+    return rb
+
+
+def py_form_data(data: dict):
+    """发送文件使用"""
+    space = "\r\n"
+    hex_timestamp = hex(int(datetime.datetime.now().timestamp()))
+    content_type = (
+        f"multipart/form-data; boundary=----WebKitFormBoundary{hex_timestamp}"
+    )
+    segments = [space]
+
+    for k, v in data.items():
+        like_filepath = v[0][0] == "@"
+        if like_filepath:
             for fpath in v:
                 fpath = fpath[1:]
                 guess_type = mimetypes.guess_type(fpath)
-                f = open(fpath, 'rb')
-                segments.append(f'''------WebKitFormBoundary{rs}\nContent-Disposition: form-data; name="{k}"; filename="{f.name}"\nContent-Type: "{guess_type[0]}"\n\n''')
-
-                # byte to base64
-                encoded = base64.b64encode(f.read()).decode('utf-8')
-                segments.append(f'{encoded}\r\n')
-                f.close()
+                with open(fpath, "rb") as f:
+                    segments.append(
+                        f'------WebKitFormBoundary{hex_timestamp}{space}Content-Disposition: form-data; name="{k}"; filename="{f.name}"{space}Content-Type: "{guess_type[0]}"{space*2}'
+                    )
+                    segments.append(f"{binary_string(f.read())}{space}")
         else:
             for vi in v:
-                segments.append(f'''------WebKitFormBoundary{rs}\nContent-Disposition: form-data; name="{k}"\n\n{vi}\n''')
+                segments.append(
+                    f'------WebKitFormBoundary{hex_timestamp}{space}Content-Disposition: form-data; name="{k}"{space*2}{vi}{space}'
+                )
 
-    segments.append(f'------WebKitFormBoundary{rs}--')
-    data = ''.join(segments)
-    byte_len = len(data)
-    print(data)
-    print(byte_len)
-    
-def send(proxy:bool,retry = True):
-    proxy_host = 'localhost:19996'
+    segments.append(f"------WebKitFormBoundary{hex_timestamp}--")
+    return str_bytes("".join(segments)), content_type
+
+
+def send(proxy: bool, retry=True):
     req = request.Request(args.url)
 
     if args.header:
         headers = json.loads(args.header)
-        for k,v in headers.items():
-            print(k,v)
+        for k, v in headers.items():
             req.add_header(k, v)
+
+    if args.Hjson:
+        req.add_header("content-type", "application/json")
 
     if args.method:
         req.method = args.method
-    
-    if args.data:
-        
-        is_form_data = False
-        # for k,v in parse.parse_qs(args.data).items():
-        #     if v[0][0] == '@':
-        #         is_form_data = True
 
-        #         for fpath in v:
-        #             datagen, headers = multipart_encode({"file": f})
-        #             print(fpath)
-        multipart_encode(parse.parse_qs(args.data))
-        sys.exit()
-        if not is_form_data:
-            o = open('./a.txt')
-            x = parse.urlencode({'file': o.read()})
-            data = x.encode('utf-8')
-            # data = args.data.encode('utf-8')
-            req.data = data
-            o.close()
-        else:
-            pass
+    if args.file:
+        bytes_data, content_type = py_form_data(parse.parse_qs(args.file))
+        req.remove_header("content-type")
+        req.add_header("content-type", content_type)
+        req.data = bytes_data
+
+    if args.data:
+        req.data = args.data.encode("utf-8")
 
     if proxy:
-        req.set_proxy(proxy_host, 'http')
-        req.set_proxy(proxy_host, 'https')
+        req.set_proxy(proxy_host, "http")
+        req.set_proxy(proxy_host, "https")
 
     try:
-        with request.urlopen(req) as f:
-            print(f.read().decode('utf-8'))
+        with request.urlopen(req) as res:
+            if args.output:
+                with open(args.output, "wb") as fp:
+                    fp.write(res.read())
+            else:
+                # 自作聪明的打印字符串
+                if "text" in res.headers.get("Content-Type"):
+                    print(res.read().decode("utf-8"))
+                else:
+                    print(res.read())
+
     except Exception as e:
 
         # 如果连接被拒绝，尝试使用代理发送
-        if 'Connection refused' in str(e) and retry:
+        if "urlopen error" in str(e) and retry:
             send(proxy=True, retry=False)
         else:
             print(e)
-        
-send(proxy=not not args.proxy)
 
+
+send(proxy=not not args.proxy)

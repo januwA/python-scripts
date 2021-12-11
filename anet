@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env py
 
 import argparse
 import json
@@ -49,18 +49,12 @@ args = parser.parse_args()
 
 def binary_string(input: bytes) -> str:
     """发送文件使用"""
-    rawdata = ""
-    for i in input:
-        rawdata += chr(i)
-    return rawdata
+    return "".join(map(chr, input))
 
 
 def str_bytes(input: str) -> bytes:
     """发送文件使用"""
-    rb = bytearray()
-    for i in input:
-        rb.append(ord(i) & 0xFF)
-    return rb
+    return bytes(map(lambda i: ord(i) & 0xFF, input))
 
 
 def py_form_data(data: dict):
@@ -126,8 +120,9 @@ def send(proxy: bool, retry=True):
                 with open(args.output, "wb") as fp:
                     fp.write(res.read())
             else:
+                res_content_type =  res.headers.get("Content-Type").lower()
                 # 自作聪明的打印字符串
-                if "text" in res.headers.get("Content-Type"):
+                if "text" in res_content_type or 'json' in res_content_type or 'charset' in res_content_type:
                     print(res.read().decode("utf-8"))
                 else:
                     print(res.read())

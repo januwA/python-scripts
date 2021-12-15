@@ -2,7 +2,10 @@
 
 import os
 import argparse
-from sys import exit
+from sys import exit, platform
+
+if platform != 'win32':
+    exit
 
 parser = argparse.ArgumentParser(
     prog='aattr',

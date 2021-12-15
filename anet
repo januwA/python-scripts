@@ -8,19 +8,19 @@ import mimetypes
 
 helo_description = """
 获取数据
-anet http://127.0.0.1:8000/test/ 
+anet http://example.com 
 
 发送数据
-anet http://127.0.0.1:8000/test/ -d 'name=ajanuw&age=10'
+anet http://example.com -d 'name=ajanuw&age=10'
 
 添加 header
-anet http://127.0.0.1:8000/test/ -d '{"name":"ajanuw"}' -H '{"content-type":"application/json"}'
+anet http://example.com -d '{"name":"ajanuw"}' -H '{"content-type":"application/json"}'
 
 发送文件
-anet http://127.0.0.1:8000/test/ -f "name=ajanuw&file=@x.jpg&file=@b.jpg"
+anet http://example.com -f "name=ajanuw&file=@x.jpg&file=@b.jpg"
 
 设置method
-anet http://127.0.0.1:8000/test/ -m delete
+anet http://example.com -m delete
 """
 
 # 本地代理端口

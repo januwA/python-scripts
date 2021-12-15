@@ -8,7 +8,7 @@ if __name__ != '__main__':
   sys.exit(1)
 
 # 默认无视的目录
-K_IGNORE = ['.git', 'node_modules', '.venv', 'venv']
+K_IGNORE = ['.git', 'node_modules', '.venv', 'venv', 'env']
 
 parser = argparse.ArgumentParser(
     prog='atree',

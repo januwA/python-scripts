@@ -37,8 +37,7 @@ args = parser.parse_args()
 
 if args.amend is not None:
     if args.amend:
-        os.system(
-            f"git add . && git commit --amend -m \"{args.amend}\" && git push -f")
+        os.system(f'git add . && git commit --amend -m "{args.amend}" && git push -f')
     else:
         os.system('git add . && git commit --amend --no-edit && git push -f')
 
@@ -47,7 +46,7 @@ if args.togit:
     os.system(f"git remote set-url origin {args.togit}")
 
 if args.push:
-    os.system(f"git add . && git commit -m \"{args.push}\" && git push")
+    os.system(f'git add . && git commit -m "{args.push}" && git push')
 
 if args.restore is not None:
     if args.restore:

@@ -9,7 +9,7 @@ winget search python3
 winget install Python.Python.3
 ```
 
-安装好后把`python.exe`在同目录复制一份为`py.exe`
+安装好后把`python.exe`在同目录复制一份为`python3.exe`
 
 ## Fedora 安装 python3
 

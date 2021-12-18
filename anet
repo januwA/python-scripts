@@ -1,4 +1,4 @@
-#!/usr/bin/env py
+#!/usr/bin/env python3
 
 import argparse
 import json
@@ -6,7 +6,7 @@ from urllib import request, parse
 import datetime
 import mimetypes
 
-helo_description = """
+help_description = """
 获取数据
 anet http://example.com 
 
@@ -28,7 +28,7 @@ proxy_host = "localhost:19996"
 
 parser = argparse.ArgumentParser(
     prog="anet",
-    description=helo_description,
+    description=help_description,
     formatter_class=argparse.RawTextHelpFormatter,
 )
 

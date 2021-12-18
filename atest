@@ -1,3 +1,5 @@
-#!/usr/bin/env py
+#!/usr/bin/env python3
 
-print("Ajanuw: 脚本可运行. ")
+import pathlib
+
+print(f"脚本可运行: {pathlib.Path(__file__).parent}")

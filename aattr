@@ -1,11 +1,11 @@
-#!/usr/bin/env py
+#!/usr/bin/env python3
 
 import os
 import argparse
-from sys import exit, platform
+import sys 
 
-if platform != 'win32':
-    exit
+if sys.platform != 'win32':
+    sys.exit()
 
 parser = argparse.ArgumentParser(
     prog='aattr',
@@ -39,7 +39,7 @@ if args.hide is not None:
         os.system(f"attrib.exe +h +s +r {args.hide}")
     else:
         os.system('attrib.exe +h +s +r /S /D')
-    exit()
+    sys.exit()
 
 if args.show is not None:
     if args.show:
@@ -47,4 +47,4 @@ if args.show is not None:
     else:
         os.system('attrib.exe -h -s -r /S /D')
         os.system('attrib.exe +h +s +r ./desktop.ini')
-    exit()
+    sys.exit()

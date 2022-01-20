@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+
+import argparse
+import secrets
+
+
+def range_char(m: str):
+    if not m:
+        return ""
+    a, b = m.split("-")
+    return ''.join([chr(i) for i in range(ord(a), ord(b)+1)])
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog='apass',
+        usage='''$ apass -w "az-z" -W "A-Z" -s "" -l 100 ''',
+        description="随机密码生成，可以设置长度，符号和字符",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument('-w', '--word', type=str, default="a-z", help='小写的单词')
+    parser.add_argument('-W', '--WORD', type=str, default="A-Z", help='大写的单词')
+    parser.add_argument('-n', '--number', type=str, default="0-9", help='数字')
+    parser.add_argument('-l', '--len', type=int, default=16, help='密码长度')
+    parser.add_argument('-s', '--symbols', type=str,
+                        default="*&^%$@#!", help='携带符号')
+
+    args = parser.parse_args()
+
+    alphabet = range_char(getattr(args, 'word')) + \
+        range_char(getattr(args, 'WORD')) + \
+        range_char(getattr(args, 'number')) + \
+        getattr(args, 'symbols')
+    passlen = getattr(args, 'len')
+    outpass = [secrets.choice(alphabet) for i in range(passlen)]
+    print(''.join(outpass))
+
+
+if __name__ == '__main__':
+    main()

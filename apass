@@ -24,7 +24,7 @@ def main():
     parser.add_argument('-n', '--number', type=str, default="0-9", help='数字')
     parser.add_argument('-l', '--len', type=int, default=16, help='密码长度')
     parser.add_argument('-s', '--symbols', type=str,
-                        default="*&^%$@#!", help='携带符号')
+                        default="*&^%$#!", help='携带符号')
 
     args = parser.parse_args()
 

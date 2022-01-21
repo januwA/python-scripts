@@ -114,10 +114,36 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument('-w', '--word', type=str, default="a-z", help='小写的单词')
+    parser.add_argument('input', metavar='input', type=str, nargs='?')
+    parser.add_argument('--url_encode', dest='url_encode', action='store_const', const=url_encode)
+    parser.add_argument('--url_decode', dest='url_decode', action='store_const', const=url_decode)
+    parser.add_argument('--base64_encode', dest='base64_encode', action='store_const', const=base64_encode)
+    parser.add_argument('--base64_decode', dest='base64_decode', action='store_const', const=base64_decode)
+    parser.add_argument('--json_decode', dest='json_decode', action='store_const', const=json_decode)
+    parser.add_argument('--md5_encryption', dest='md5_encryption', action='store_const', const=md5_encryption)
+    parser.add_argument('--sha256_encryption', dest='sha256_encryption', action='sha256_encryption', const=sha256_encryption)
     args = parser.parse_args()
 
-    print(CNMoney.parse('43001012.23'))
+    if args.url_encode:
+        print(args.url_encode(args.input))
+
+    if args.url_decode:
+        print(args.url_decode(args.input))
+
+    if args.base64_encode:
+        print(args.base64_encode(args.input))
+
+    if args.base64_decode:
+        print(args.base64_decode(args.input))
+
+    if args.json_decode:
+        print(args.json_decode(args.input))
+
+    if args.md5_encryption:
+        print(args.md5_encryption(args.input))
+
+    if args.sha256_encryption:
+        print(args.sha256_encryption(args.input))
 
 
 if __name__ == '__main__':

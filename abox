@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+
+import argparse
+import urllib.parse
+import base64
+import json
+import hashlib
+import uuid
+
+
+def url_encode(input: str):
+    return urllib.parse.quote_plus(input)
+
+
+def url_decode(input: str):
+    return urllib.parse.unquote_plus(input)
+
+
+def base64_encode(input: str):
+    return base64.b64encode(input.encode()).decode()
+
+
+def base64_decode(input: str):
+    return base64.b64decode(input.encode()).decode()
+
+
+def json_decode(input: str):
+    return json.dumps(json.loads(input), indent=2, sort_keys=True)
+
+
+def md5_encryption(input: str):
+    return hashlib.md5(input.encode()).hexdigest()
+
+
+def sha256_encryption(input: str):
+    return hashlib.sha256(input.encode()).hexdigest()
+
+
+def uuid4_hex():
+    return uuid.uuid4()
+
+
+class CNMoney:
+    _cn_big_num = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖']
+    _cn_big_l = [
+        '亿', '仟', '佰', '拾',
+        '万', '仟', '佰', '拾', '元', '角', '分']
+
+    @staticmethod
+    def parse(input: str):
+        # 多个小数点不解析
+        if input.count('.') > 1:
+            return ''
+
+        # 吃掉左边的零
+        while input[0] == '0':
+            input = input[1:]
+
+        r = bool(input.count('.'))
+        cnm = None
+        for i in input:
+            i = i.strip()
+            if r and i == '.':
+                continue
+
+            if not i or i == ',':
+                continue
+
+            cnm = CNMoney(i, parent=cnm, d=-1 if r else -3)
+            if cnm.parent:
+                cnm.parent.child = cnm
+            cnm.update_parent_dan_wei()
+
+        cnm_str = str(cnm)
+        if not r:
+            cnm_str += '整'
+        return cnm_str
+
+    def __init__(self, node: str, parent=None, d=-1) -> None:
+        self.child = None
+        self.node = int(node)
+        self.node_cn = self._cn_big_num[int(node)]
+        self.parent = parent
+        self.d = d
+
+    @property
+    def dan_wei(self):
+        return self._cn_big_l[self.d]
+
+    def update_parent_dan_wei(self):
+        if not self.parent:
+            return
+        self.parent.d += -1
+
+        if abs(self.parent.d) > len(self._cn_big_l):
+            # 跳过 元
+            self.parent.d = -4
+
+        self.parent.update_parent_dan_wei()
+
+    def __str__(self) -> str:
+        parent_str = str(self.parent) if self.parent else ''
+        a = self.node_cn
+        b = self.dan_wei
+        ab = a+b
+
+        return f'{parent_str}{ab}'
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog='abox',
+        description="转换工具",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument('-w', '--word', type=str, default="a-z", help='小写的单词')
+    args = parser.parse_args()
+
+    print(CNMoney.parse('43001012.23'))
+
+
+if __name__ == '__main__':
+    main()

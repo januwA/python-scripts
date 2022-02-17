@@ -18,7 +18,7 @@ parser.add_argument('--show',
                     # 提供值时 '--show ./asd'
                     type=str,
 
-                    # 为提供值时 '--show '
+                    # 未提供值时 '--show '
                     nargs='?', const='',
 
                     # 命令中不存在此选项时 ' '

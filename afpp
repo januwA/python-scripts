@@ -2,10 +2,13 @@
 
 import argparse
 import os
+import sys
 
 parser = argparse.ArgumentParser(
     prog='afpp',
-    description='Flutetr 快速脚本',
+    description='''
+Flutetr 快速脚本
+    ''',
     formatter_class=argparse.RawTextHelpFormatter
 )
 
@@ -20,6 +23,8 @@ parser.add_argument('-code', '--codegen', action='store_true',
                     default=None, help='生成*.g.dart文件')
 parser.add_argument('--build', action='store_true',
                     default=None, help='分包打包APK')
+parser.add_argument('--emulator', type=str, nargs='?',
+                    const='', default=None, help='启动 Android 设备模拟器')
 
 args = parser.parse_args()
 
@@ -57,3 +62,19 @@ if args.reset:
 if args.codegen:
     os.system(
         'flutter packages pub run build_runner watch --delete-conflicting-outputs')
+
+if args.emulator is not None:
+    ANDROID_HOME = os.environ.get("ANDROID_HOME", None)
+    if not ANDROID_HOME:
+        print("没找到 ANDROID_HOME 环境变量")
+        sys.exit(1)
+
+    emulator_exe_path = os.path.join(ANDROID_HOME, 'emulator', 'emulator.exe')
+    if not os.path.exists(emulator_exe_path):
+        print(f"没找到 {emulator_exe_path}")
+        sys.exit(1)
+
+    if args.emulator:
+        os.system(f'{emulator_exe_path} -avd {args.emulator}')  # 启动指定模拟器
+    else:
+        os.system(f'{emulator_exe_path} -list-avds')  # 模拟器列表

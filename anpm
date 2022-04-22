@@ -5,7 +5,7 @@ import os
 
 
 def main():
-    registry_taobao = "https://registry.npm.taobao.org/"
+    registry_taobao = "https://registry.npmmirror.com"
     registry_npm = "https://registry.npmjs.org/"
 
     parser = argparse.ArgumentParser(

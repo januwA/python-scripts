@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog='ayt',
+        description='使用yt-dlp下载audio或video，需要提前安装ffmpeg',
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    parser.add_argument('--install',
+                        action='store_true', default=None,
+                        help='安装yt-dlp')
+
+    parser.add_argument('--audio', dest='audio', type=str,
+                        default=None, help='下载MP3: ayt --autio "<url>"')
+
+    parser.add_argument('--video', dest='video', type=str,
+                        default=None, help='下载视频: ayt --video "<url>"')
+
+    args = parser.parse_args()
+
+    if args.install	:
+        os.system(f'python3 -m pip install -U yt-dlp')
+
+    if args.audio	:
+        os.system(f'yt-dlp -x --audio-format mp3 --audio-quality 0 "{args.audio}"')
+
+    if args.video	:
+        os.system(f'yt-dlp "{args.video}"')
+
+
+
+
+
+if __name__ == '__main__':
+    main()

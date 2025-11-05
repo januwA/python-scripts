@@ -4,7 +4,7 @@ import subprocess
 from time import sleep
 
 branch = subprocess.run(
-    ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True, capture_output=True, check=True
+    ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True, capture_output=True
 ).stdout.strip()
 
 target = "refactor-nightly"
@@ -18,13 +18,13 @@ if branch == target:
     print(f"already on {target}")
 else:
     exists = subprocess.run(
-        ["git", "branch", "--list", target], text=True, capture_output=True, check=True
+        ["git", "branch", "--list", target], text=True, capture_output=True
     ).stdout.strip()
     if exists:
-        subprocess.run(["git", "checkout", target], check=True)
+        subprocess.run(["git", "checkout", target])
         print(f"switch to {target}")
     else:
-        subprocess.run(["git", "checkout", "-b", target], check=True)
+        subprocess.run(["git", "checkout", "-b", target])
         print(f"create {target}")
 
 while_count = 1

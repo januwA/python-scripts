@@ -9,9 +9,9 @@ branch = subprocess.run(
 
 target = "refactor-nightly"
 commands = [
-    fr'''cat C:\Users\16418\.claude\commands\aja\ar3.md | gemini -m gemini-2.5-flash --yolo''',
+    fr'''gemini -m gemini-2.5-flash --yolo "读取 C:\Users\16418\.claude\commands\aja\ar3.md 文件里的内容并执行任务"''',
     fr'''codex exec "读取 C:\Users\16418\.claude\commands\aja\ar3.md 文件里的内容并执行任务" -m="gpt-5-codex" --dangerously-bypass-approvals-and-sandbox''',
-    fr'''cat C:\Users\16418\.claude\commands\aja\ar3.md | claude --permission-mode bypassPermissions -p''',
+    fr'''claude --permission-mode bypassPermissions -p "读取 C:\Users\16418\.claude\commands\aja\ar3.md 文件里的内容并执行任务"''',
 ]
 
 if branch == target:

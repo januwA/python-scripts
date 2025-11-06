@@ -28,9 +28,9 @@ branch = subprocess.run(
 
 target = "refactor-nightly"
 commands = [
-    fr'''cat .claude/ar3.md | gemini -m gemini-2.5-flash --approval-mode=yolo"''',
+    fr'''cat .claude/ar3.md | gemini -m gemini-2.5-flash --approval-mode=yolo''',
     fr'''cat .claude/ar3.md | qwen -m="Qwen/Qwen3-Coder-480B-A35B-Instruct" --approval-mode=yolo -p''',
-    fr'''cat .claude/ar3.md | codex exec -m="gpt-5-codex" --dangerously-bypass-approvals-and-sandbox"''',
+    fr'''cat .claude/ar3.md | codex exec -m="gpt-5-codex" --dangerously-bypass-approvals-and-sandbox''',
     fr'''cat .claude/ar3.md | claude --permission-mode bypassPermissions -p'''
 ]
 

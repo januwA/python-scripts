@@ -63,7 +63,7 @@ while True:
             fail_count += 1
         
         # 不自动运行则提示是否继续
-        if "auto" not in sys.argv:
+        if "auto" not in sys.argv[1:]:
             if input("是否继续？(y/n): ").lower() != 'y':
                 sys.exit()
             

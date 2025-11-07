@@ -54,11 +54,7 @@ while True:
     
     for cmdStr in commands:
         print(f"running: {cmdStr}")
-        result = subprocess.run(shell_cmd + [cmdStr], 
-                                stdout=subprocess.DEVNULL,
-                                check=False
-                                # stderr=subprocess.DEVNULL
-                                )
+        result = subprocess.run(shell_cmd + [cmdStr])
         if result.returncode != 0:
             fail_count += 1
         

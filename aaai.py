@@ -46,7 +46,7 @@ else:
         print(f"create {target}")
 
 while_count = 1
-shell_cmd = ()
+shell_cmd = get_shell()
 while True:
     print(f"第{while_count}次执行")
     while_count += 1

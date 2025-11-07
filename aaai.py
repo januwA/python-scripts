@@ -46,7 +46,7 @@ else:
         print(f"create {target}")
 
 while_count = 1
-shell_cmd = get_shell()
+shell_cmd = ()
 while True:
     print(f"第{while_count}次执行")
     while_count += 1
@@ -54,10 +54,18 @@ while True:
     
     for cmdStr in commands:
         print(f"running: {cmdStr}")
-        result = subprocess.run(shell_cmd + [cmdStr])
+        result = subprocess.run(shell_cmd + [cmdStr], 
+                                stdout=subprocess.DEVNULL,
+                                check=False
+                                # stderr=subprocess.DEVNULL
+                                )
         if result.returncode != 0:
             fail_count += 1
-        sleep(10)
+        
+        # 不自动运行则提示是否继续
+        if "auto" not in sys.argv:
+            if input("是否继续？(y/n): ").lower() != 'y':
+                sys.exit()
             
     if fail_count == len(commands):
         print("全部执行失败")

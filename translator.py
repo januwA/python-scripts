@@ -10,9 +10,12 @@ import re
 
 # 配置
 OLLAMA_API = "http://localhost:11434/api/chat"
-MODEL_NAME = "qwen2.5:1.5b"
-# MODEL_NAME = "gemma3:1b"
+# MODEL_NAME = "qwen2.5:1.5b"
+MODEL_NAME = "gemma3:1b"
 LOCK = threading.Lock()
+AUTO_COPY_ON_HOTKEY = True
+COPY_WAIT_TIMEOUT = 0.6
+COPY_WAIT_INTERVAL = 0.05
 
 def translate_logic():
     # 尝试获取锁，如果已经有翻译在进行则直接退出
@@ -22,7 +25,18 @@ def translate_logic():
     start_time = time.time()
     try:
         # 1. 直接从剪贴板获取内容
-        text = pyperclip.paste().strip()
+        previous_clipboard = pyperclip.paste()
+        if AUTO_COPY_ON_HOTKEY:
+            keyboard.send('ctrl+c')
+            deadline = time.monotonic() + COPY_WAIT_TIMEOUT
+            while time.monotonic() < deadline:
+                current = pyperclip.paste()
+                if current and current != previous_clipboard:
+                    previous_clipboard = current
+                    break
+                time.sleep(COPY_WAIT_INTERVAL)
+
+        text = (previous_clipboard or "").strip()
         if not text:
             print("剪贴板为空，跳过翻译")
             return
